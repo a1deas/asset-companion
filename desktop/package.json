@@ -1,0 +1,29 @@
+{
+  "name": "asset-companion-desktop",
+  "version": "0.1.0",
+  "description": "Asset Companion Desktop Application",
+  "main": "main.js",
+  "author": "Asset Companion",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dev": "NODE_ENV=development electron .",
+    "build": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^32.0.0"
+  },
+  "build": {
+    "appId": "com.assetcompanion.desktop",
+    "productName": "Asset Companion",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer/**/*",
+      "package.json"
+    ]
+  }
+}

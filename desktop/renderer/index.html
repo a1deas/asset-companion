@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self' 'unsafe-inline' data: blob: http://localhost:*; img-src 'self' data: blob: http://localhost:*; connect-src 'self' http://localhost:*;"
+    />
+    <title>Asset Companion</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app-container">
+      <!-- Header -->
+      <header class="app-header">
+        <div class="header-content">
+          <h1 class="app-title">
+            <span class="icon">🎨</span>
+            Asset Companion
+          </h1>
+          <p class="app-subtitle">
+            Intelligent image processing for game assets
+          </p>
+        </div>
+      </header>
+
+      <!-- Main Content -->
+      <main class="app-main">
+        <!-- Control Panel -->
+        <section class="control-panel">
+          <div class="panel-section">
+            <h2 class="section-title">Processing Options</h2>
+
+            <div class="form-group">
+              <label for="sizeMode" class="form-label">
+                <span class="label-text">Output Size Mode</span>
+                <span class="label-hint"
+                  >Choose how to calculate output dimensions</span
+                >
+              </label>
+              <select id="sizeMode" class="form-select">
+                <option value="square">Square (manual size)</option>
+                <option value="auto" selected>Auto (suggest best size)</option>
+                <option value="power_of_two">Power of 2</option>
+                <option value="multiple">Multiple of 8</option>
+                <option value="custom">Custom (manual width/height)</option>
+              </select>
+            </div>
+
+            <div class="form-group" id="squareSizeGroup" style="display: none">
+              <label for="target" class="form-label">
+                <span class="label-text">Square Size</span>
+                <span class="label-hint">Square output size in pixels</span>
+              </label>
+              <input
+                id="target"
+                type="number"
+                value="512"
+                min="8"
+                max="4096"
+                step="8"
+                class="form-input"
+              />
+            </div>
+
+            <div class="form-group" id="multipleGroup" style="display: none">
+              <label for="sizeMultiple" class="form-label">
+                <span class="label-text">Multiple</span>
+                <span class="label-hint">Round to multiple of</span>
+              </label>
+              <select id="sizeMultiple" class="form-select">
+                <option value="8" selected>8</option>
+                <option value="2">2</option>
+                <option value="4">4</option>
+                <option value="16">16</option>
+              </select>
+            </div>
+
+            <div class="form-group" id="customSizeGroup" style="display: none">
+              <label class="form-label">
+                <span class="label-text">Custom Dimensions</span>
+                <span class="label-hint">Manual width and height</span>
+              </label>
+              <div style="display: flex; gap: 8px">
+                <input
+                  id="sizeWidth"
+                  type="number"
+                  placeholder="Width"
+                  min="8"
+                  max="4096"
+                  step="8"
+                  class="form-input"
+                  style="flex: 1"
+                />
+                <span style="align-self: center; font-size: 18px">×</span>
+                <input
+                  id="sizeHeight"
+                  type="number"
+                  placeholder="Height"
+                  min="8"
+                  max="4096"
+                  step="8"
+                  class="form-input"
+                  style="flex: 1"
+                />
+              </div>
+            </div>
+
+            <div class="form-group" id="autoSizeInfo" style="display: none">
+              <div
+                class="info-box"
+                style="
+                  padding: 12px;
+                  background: #f0f0f0;
+                  border-radius: 4px;
+                  font-size: 14px;
+                "
+              >
+                <strong>Auto mode:</strong> Will suggest optimal size based on
+                input dimensions, preferring power of 2 or multiple of 8 while
+                preserving aspect ratio.
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="kind" class="form-label">
+                <span class="label-text">Image Type</span>
+                <span class="label-hint">Auto-detect or force type</span>
+              </label>
+              <select id="kind" class="form-select">
+                <option value="auto">Auto-detect</option>
+                <option value="pixel_art">Pixel Art</option>
+                <option value="illustration">Illustration</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="superres" class="form-label">
+                <span class="label-text">Super-Resolution</span>
+                <span class="label-hint"
+                  >Enhance with Real-ESRGAN (slower)</span
+                >
+              </label>
+              <select id="superres" class="form-select">
+                <option value="none">None</option>
+                <option value="realesrgan">Real-ESRGAN (4x)</option>
+              </select>
+            </div>
+
+            <div class="form-actions">
+              <button id="processBtn" class="btn btn-primary" disabled>
+                <span class="btn-icon">⚡</span>
+                <span class="btn-text">Process Image</span>
+              </button>
+              <button id="resetBtn" class="btn btn-secondary">
+                <span class="btn-icon">↺</span>
+                <span class="btn-text">Reset</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Drop Zone -->
+        <section class="drop-zone-container">
+          <div id="dropZone" class="drop-zone">
+            <div class="drop-zone-content">
+              <div class="drop-icon">📁</div>
+              <h3 class="drop-title">Drop image here or click to browse</h3>
+              <p class="drop-hint">
+                Supports PNG, JPG, WEBP, and other image formats
+              </p>
+              <input
+                id="fileInput"
+                type="file"
+                accept="image/*"
+                class="file-input"
+              />
+            </div>
+            <div id="dropZoneOverlay" class="drop-zone-overlay">
+              <div class="drop-overlay-content">Release to upload</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Progress Bar -->
+        <section
+          id="progressSection"
+          class="progress-section"
+          style="display: none"
+        >
+          <div class="progress-container">
+            <div class="progress-bar">
+              <div id="progressFill" class="progress-fill"></div>
+            </div>
+            <div class="progress-text">
+              <span id="progressStatus">Processing...</span>
+              <span id="progressPercent">0%</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Preview Section -->
+        <section class="preview-section">
+          <div class="preview-grid">
+            <!-- Input Preview -->
+            <div class="preview-card">
+              <div class="preview-header">
+                <h3 class="preview-title">Input</h3>
+                <div id="inputInfo" class="preview-info"></div>
+              </div>
+              <div class="preview-content">
+                <div id="inputPreview" class="preview-image-container">
+                  <div class="preview-placeholder">
+                    <span class="placeholder-icon">🖼️</span>
+                    <span class="placeholder-text">No image selected</span>
+                  </div>
+                  <img
+                    id="previewIn"
+                    class="preview-image"
+                    style="display: none"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Output Preview -->
+            <div class="preview-card">
+              <div class="preview-header">
+                <h3 class="preview-title">Output</h3>
+                <div id="outputInfo" class="preview-info"></div>
+              </div>
+              <div class="preview-content">
+                <div id="outputPreview" class="preview-image-container">
+                  <div class="preview-placeholder">
+                    <span class="placeholder-icon">✨</span>
+                    <span class="placeholder-text"
+                      >Processed image will appear here</span
+                    >
+                  </div>
+                  <img
+                    id="previewOut"
+                    class="preview-image"
+                    style="display: none"
+                  />
+                </div>
+                <div
+                  id="downloadContainer"
+                  class="download-container"
+                  style="display: none"
+                >
+                  <button id="downloadBtn" class="btn btn-success">
+                    <span class="btn-icon">💾</span>
+                    <span class="btn-text">Download Result</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Metadata/Log Section -->
+        <section
+          id="metadataSection"
+          class="metadata-section"
+          style="display: none"
+        >
+          <div class="metadata-header">
+            <h3 class="metadata-title">Processing Metadata</h3>
+            <button id="toggleMetadata" class="btn-icon-only">▼</button>
+          </div>
+          <div id="metadataContent" class="metadata-content">
+            <pre id="metadataLog" class="metadata-log"></pre>
+          </div>
+        </section>
+      </main>
+
+      <!-- Status Bar -->
+      <footer class="app-footer">
+        <div class="status-bar">
+          <span id="statusText" class="status-text">Ready</span>
+          <span id="apiStatus" class="api-status">
+            <span class="status-indicator"></span>
+            <span class="status-label">API</span>
+          </span>
+        </div>
+      </footer>
+    </div>
+
+    <!-- Error Toast -->
+    <div id="errorToast" class="toast toast-error" style="display: none">
+      <span class="toast-icon">⚠️</span>
+      <span class="toast-message" id="errorMessage"></span>
+      <button class="toast-close" id="closeError">×</button>
+    </div>
+
+    <!-- Success Toast -->
+    <div id="successToast" class="toast toast-success" style="display: none">
+      <span class="toast-icon">✓</span>
+      <span class="toast-message" id="successMessage"></span>
+      <button class="toast-close" id="closeSuccess">×</button>
+    </div>
+
+    <script src="renderer.js"></script>
+  </body>
+</html>
