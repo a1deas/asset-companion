@@ -20,7 +20,15 @@ const elements = {
   dropZoneOverlay: document.getElementById("dropZoneOverlay"),
 
   // Controls
+  sizeModeSelect: document.getElementById("sizeMode"),
   targetInput: document.getElementById("target"),
+  sizeMultipleSelect: document.getElementById("sizeMultiple"),
+  sizeWidthInput: document.getElementById("sizeWidth"),
+  sizeHeightInput: document.getElementById("sizeHeight"),
+  squareSizeGroup: document.getElementById("squareSizeGroup"),
+  multipleGroup: document.getElementById("multipleGroup"),
+  customSizeGroup: document.getElementById("customSizeGroup"),
+  autoSizeInfo: document.getElementById("autoSizeInfo"),
   kindSelect: document.getElementById("kind"),
   superresSelect: document.getElementById("superres"),
   processBtn: document.getElementById("processBtn"),

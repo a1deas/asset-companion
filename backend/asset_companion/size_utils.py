@@ -151,3 +151,4 @@ def calculate_target_size(
     # Default: auto mode
     return auto_suggest_size(width, height, prefer_power_of_two=True)
 
+

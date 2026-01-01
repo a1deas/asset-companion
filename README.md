@@ -1,6 +1,6 @@
 # Asset Companion
 
-A production-ready image processing pipeline for game assets and illustrations. Automatically processes images with intelligent cropping, scaling, super-resolution, and enhancement.
+An image processing pipeline for game assets and illustrations. Automatically processes images with intelligent cropping, scaling, super-resolution, and enhancement.
 
 ## Features
 
